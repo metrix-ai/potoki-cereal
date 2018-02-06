@@ -1,7 +1,7 @@
 name:
   potoki-cereal
 version:
-  0.1
+  0.1.1
 synopsis:
   Streaming serialization
 category:
