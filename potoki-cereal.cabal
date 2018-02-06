@@ -39,6 +39,8 @@ library
   default-language:
     Haskell2010
   exposed-modules:
+    Potoki.Cereal.Consume,
+    Potoki.Cereal.Produce,
     Potoki.Cereal.Transform
   other-modules:
     Potoki.Cereal.Prelude
