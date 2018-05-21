@@ -22,31 +22,31 @@ decode =
 {-# INLINE runPartialDecoder #-}
 runPartialDecoder :: forall decoded. (ByteString -> C.Result decoded) -> Transform ByteString (Either Text decoded)
 runPartialDecoder inputToResult =
-  Transform $ \ inputFetch ->
-  do
+  Transform $ return $ \ inputFetch -> A.Fetch $ do
     unconsumedRef <- newIORef mempty
     finishedRef <- newIORef False
-    return (A.Fetch (fetchParsed inputFetch finishedRef unconsumedRef))
+    fetchParsed inputFetch finishedRef unconsumedRef
   where
-    fetchParsed :: A.Fetch ByteString -> IORef Bool -> IORef ByteString -> forall x. x -> (Either Text decoded -> x) -> IO x
-    fetchParsed (A.Fetch inputFetchIO) finishedRef unconsumedRef nil just =
+    fetchParsed :: A.Fetch ByteString -> IORef Bool -> IORef ByteString -> IO (Maybe (Either Text decoded))
+    fetchParsed (A.Fetch inputFetchIO) finishedRef unconsumedRef =
       do
         finished <- readIORef finishedRef
         if finished
-          then return nil
+          then return Nothing
           else do
             unconsumed <- readIORef unconsumedRef
             if unconsumed == mempty
-              then
-                join $ inputFetchIO
-                  (return nil)
-                  (\ input -> do
+              then do
+                inputFetch <- inputFetchIO
+                case inputFetch of
+                  Nothing    -> return Nothing
+                  Just input -> do
                     if input == mempty
-                      then return nil
-                      else matchResult (inputToResult input))
+                      then return Nothing
+                      else matchResult $ inputToResult input
               else do
                 writeIORef unconsumedRef mempty
-                matchResult (inputToResult unconsumed)
+                matchResult $ inputToResult unconsumed
       where
         matchResult =
           \ case
@@ -55,20 +55,22 @@ runPartialDecoder inputToResult =
             C.Done decoded unconsumed ->
               do
                 writeIORef unconsumedRef unconsumed
-                return (just (Right decoded))
+                return $ Just (Right decoded)
             C.Fail message unconsumed ->
               do
                 writeIORef unconsumedRef unconsumed
                 writeIORef finishedRef True
-                return (just (Left resultMessage))
+                return $ Just (Left resultMessage)
               where
                 resultMessage =
                   fromString message
-        consume inputToResult =
-          join $ inputFetchIO
-            (do
+        consume inputToResult = do
+          inputFetch <- inputFetchIO
+          case inputFetch of
+            Nothing -> do
               writeIORef finishedRef True
-              matchResult (inputToResult mempty))
-            (\ input -> do
+              matchResult $ inputToResult mempty
+            Just input -> do
               when (input == mempty) (writeIORef finishedRef True)
-              matchResult (inputToResult input))
+              matchResult $ inputToResult input
+
