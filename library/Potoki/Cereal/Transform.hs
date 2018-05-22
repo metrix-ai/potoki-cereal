@@ -9,6 +9,7 @@ import Potoki.Cereal.Prelude
 import Potoki.Core.Transform
 import qualified Potoki.Core.Fetch as A
 import qualified Data.Serialize as C
+import qualified Acquire.Acquire as M
 
 
 encode :: C.Serialize element => Transform element ByteString
@@ -22,11 +23,11 @@ decode =
 {-# INLINE runPartialDecoder #-}
 runPartialDecoder :: forall decoded. (ByteString -> C.Result decoded) -> Transform ByteString (Either Text decoded)
 runPartialDecoder inputToResult =
-  Transform $ \ inputFetch ->
+  Transform $ M.Acquire $ 
   do
     unconsumedRef <- newIORef mempty
     finishedRef <- newIORef False
-    return (A.Fetch (fetchParsed inputFetch finishedRef unconsumedRef))
+    return $ (, return ()) $ \ inputFetch -> (A.Fetch (fetchParsed inputFetch finishedRef unconsumedRef))
   where
     fetchParsed :: A.Fetch ByteString -> IORef Bool -> IORef ByteString -> forall x. x -> (Either Text decoded -> x) -> IO x
     fetchParsed (A.Fetch inputFetchIO) finishedRef unconsumedRef nil just =
