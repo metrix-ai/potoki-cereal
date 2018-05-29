@@ -1,15 +1,25 @@
 module Potoki.Cereal.Consume
-(
-  encodeToFile,
-)
 where
 
 import Potoki.Cereal.Prelude
-import Potoki.Consume
-import Potoki.Core.Transform
-import qualified Potoki.Cereal.Transform as D
-import qualified Data.Serialize as C
+import Potoki.Core.Consume
+import Data.Serialize
+import qualified Potoki.Core.Fetch as E
 
 
-encodeToFile :: C.Serialize a => FilePath -> Consume a (Either IOException ())
-encodeToFile = transform D.encode . writeBytesToFile
+get :: Get a -> Consume ByteString (Either String a)
+get get =
+  Consume $ \ (E.Fetch fetchIO) ->
+  let
+    loop decodeChunk =
+      let
+        none = case decodeChunk "" of
+          Done result _ -> return (Right result)
+          Fail error _ -> return (Left (fromString error))
+          _ -> return (Left "Not enough data")
+        some chunk = case decodeChunk chunk of
+          Partial newDecodeChunk -> loop newDecodeChunk
+          Done result _ -> return (Right result)
+          Fail error _ -> return (Left (fromString error))
+        in join (fetchIO none some)
+    in loop (runGetPartial get)
