@@ -41,7 +41,6 @@ library
   exposed-modules:
     Potoki.Cereal.Consume
     Potoki.Cereal.Produce
-    Potoki.Cereal.Transform
   other-modules:
     Potoki.Cereal.Prelude
   build-depends:
@@ -49,6 +48,5 @@ library
     base-prelude >=1 && <2,
     bytestring >=0.10 && <0.11,
     cereal >=0.5 && <0.6,
-    potoki >=0.10 && <0.11,
-    potoki-core >=1.5 && <1.6,
+    potoki-core >=1.5.3 && <1.6,
     text >=1 && <2
