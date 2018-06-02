@@ -45,6 +45,8 @@ library
   other-modules:
     Potoki.Cereal.Prelude
   build-depends:
+    acquire >=0.2 && <0.3,
+    attoparsec >=0.13 && <0.15,
     base-prelude >= 1 && < 2,
     bytestring >= 0.10 && < 0.11,
     cereal >= 0.5 && < 0.6,
