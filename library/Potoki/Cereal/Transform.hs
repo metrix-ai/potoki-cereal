@@ -22,7 +22,7 @@ decode =
 {-# INLINE runPartialDecoder #-}
 runPartialDecoder :: forall decoded. (ByteString -> C.Result decoded) -> Transform ByteString (Either Text decoded)
 runPartialDecoder inputToResult =
-  Transform $ return $ \ inputFetch -> A.Fetch $ do
+  Transform $ \ inputFetch -> return $ A.Fetch $ do
     unconsumedRef <- newIORef mempty
     finishedRef <- newIORef False
     fetchParsed inputFetch finishedRef unconsumedRef
@@ -50,8 +50,8 @@ runPartialDecoder inputToResult =
       where
         matchResult =
           \ case
-            C.Partial inputToResult ->
-              consume inputToResult
+            C.Partial inputToResultVal1 ->
+              consume' inputToResultVal1
             C.Done decoded unconsumed ->
               do
                 writeIORef unconsumedRef unconsumed
@@ -64,13 +64,13 @@ runPartialDecoder inputToResult =
               where
                 resultMessage =
                   fromString message
-        consume inputToResult = do
+        consume' inputToResultVal2 = do
           inputFetch <- inputFetchIO
           case inputFetch of
             Nothing -> do
               writeIORef finishedRef True
-              matchResult $ inputToResult mempty
+              matchResult $ inputToResultVal2 mempty
             Just input -> do
               when (input == mempty) (writeIORef finishedRef True)
-              matchResult $ inputToResult input
+              matchResult $ inputToResultVal2 input
 
