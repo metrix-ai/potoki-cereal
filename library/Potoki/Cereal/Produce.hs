@@ -6,7 +6,7 @@ module Potoki.Cereal.Produce
 where
 
 import Potoki.Cereal.Prelude
-import Potoki.Produce
+import Potoki.Core.Produce
 import Potoki.Core.Transform
 import qualified Potoki.Cereal.Transform as D
 import qualified Data.Serialize as C

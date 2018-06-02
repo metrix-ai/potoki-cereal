@@ -5,7 +5,7 @@ module Potoki.Cereal.Consume
 where
 
 import Potoki.Cereal.Prelude
-import Potoki.Consume
+import Potoki.Core.Consume
 import qualified Potoki.Cereal.Transform as D
 import qualified Data.Serialize as C
 
