@@ -1,0 +1,9 @@
+resolver: lts-11.0
+
+extra-deps:
+- bug-1.0.1
+- acquire-0.2.0.1
+- ptr-0.16.5
+- unagi-chan-0.4.1.0
+- {git: "https://github.com/metrix-ai/potoki", commit: "8dc113b68a"}
+- {git: "https://github.com/metrix-ai/potoki-core", commit: "bcb8e1a0d1"}
