@@ -21,5 +21,9 @@ get get =
           Partial newDecodeChunk -> loop newDecodeChunk
           Done result _ -> return (Right result)
           Fail error _ -> return (Left (fromString error))
-        in join (fetchIO none some)
+        in do
+          fetch <- fetchIO
+          case fetch of
+            Nothing -> none
+            Just res -> some res
     in loop (runGetPartial get)
