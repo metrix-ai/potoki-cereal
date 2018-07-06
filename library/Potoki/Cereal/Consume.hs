@@ -5,6 +5,7 @@ import Potoki.Cereal.Prelude
 import Potoki.Core.Consume
 import Data.Serialize
 import qualified Potoki.Core.Fetch as E
+import qualified Potoki.Cereal.Transform as D
 
 
 get :: Get a -> Consume ByteString (Either String a)
@@ -27,3 +28,6 @@ get get =
             Nothing -> none
             Just res -> some res
     in loop (runGetPartial get)
+    
+encodeToFile :: Serialize a => FilePath -> Consume a (Either IOException ())
+encodeToFile = transform D.encode . writeBytesToFile

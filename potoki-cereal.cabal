@@ -41,6 +41,7 @@ library
   exposed-modules:
     Potoki.Cereal.Consume
     Potoki.Cereal.Produce
+    Potoki.Cereal.Transform
   other-modules:
     Potoki.Cereal.Prelude
   build-depends:
@@ -52,4 +53,5 @@ library
     base-prelude >= 1 && < 2,
     attoparsec >=0.13 && <0.15,
     acquire >=0.2 && <0.3,
-    base-prelude >=1 && <2
+    base-prelude >=1 && <2,
+    text >= 1 && < 2
