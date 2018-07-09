@@ -1,15 +1,15 @@
 name:
   potoki-cereal
 version:
-  0.2
+  0.2.1
 synopsis:
   Streaming serialization
 category:
   Potoki, Streaming
 homepage:
-  https://github.com/metrix-ai/potoki-cereal 
+  https://github.com/metrix-ai/potoki-cereal
 bug-reports:
-  https://github.com/metrix-ai/potoki-cereal/issues 
+  https://github.com/metrix-ai/potoki-cereal/issues
 author:
   Nikita Volkov <nikita.y.volkov@mail.ru>
 maintainer:
@@ -46,7 +46,7 @@ library
     Potoki.Cereal.Prelude
   build-depends:
     base >=4.7 && <5,
-    potoki-core >= 2 && < 2.3,
+    potoki-core >= 2.2.1 && < 2.3,
     text >= 1 && < 2,
     cereal >= 0.5 && < 0.6,
     bytestring >= 0.10 && < 0.11,

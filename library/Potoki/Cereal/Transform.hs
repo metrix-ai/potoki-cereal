@@ -30,5 +30,55 @@ result2IResult =
 
 {-# INLINE runPartialDecoder #-}
 runPartialDecoder :: forall decoded. (ByteString -> C.Result decoded) -> Transform ByteString (Either Text decoded)
-runPartialDecoder input2Result =
-  D.mapWithParseResult $ result2IResult . input2Result
+runPartialDecoder inputToResult =
+  Transform $ \ inputFetch -> return $ A.Fetch $ do
+    unconsumedRef <- newIORef mempty
+    finishedRef <- newIORef False
+    fetchParsed inputFetch finishedRef unconsumedRef
+  where
+    fetchParsed :: A.Fetch ByteString -> IORef Bool -> IORef ByteString -> IO (Maybe (Either Text decoded))
+    fetchParsed (A.Fetch inputFetchIO) finishedRef unconsumedRef =
+      do
+        finished <- readIORef finishedRef
+        if finished
+          then return Nothing
+          else do
+            unconsumed <- readIORef unconsumedRef
+            if unconsumed == mempty
+              then do
+                inputFetch <- inputFetchIO
+                case inputFetch of
+                  Nothing    -> return Nothing
+                  Just input -> do
+                    if input == mempty
+                      then return Nothing
+                      else matchResult $ inputToResult input
+              else do
+                writeIORef unconsumedRef mempty
+                matchResult $ inputToResult unconsumed
+      where
+        matchResult =
+          \ case
+            C.Partial inputToResultVal1 ->
+              consume' inputToResultVal1
+            C.Done decoded unconsumed ->
+              do
+                writeIORef unconsumedRef unconsumed
+                return $ Just (Right decoded)
+            C.Fail message unconsumed ->
+              do
+                writeIORef unconsumedRef unconsumed
+                writeIORef finishedRef True
+                return $ Just (Left resultMessage)
+              where
+                resultMessage =
+                  fromString message
+        consume' inputToResultVal2 = do
+          inputFetch <- inputFetchIO
+          case inputFetch of
+            Nothing -> do
+              writeIORef finishedRef True
+              matchResult $ inputToResultVal2 mempty
+            Just input -> do
+              when (input == mempty) (writeIORef finishedRef True)
+              matchResult $ inputToResultVal2 input
