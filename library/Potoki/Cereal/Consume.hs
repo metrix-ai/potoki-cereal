@@ -8,7 +8,7 @@ import qualified Potoki.Core.Fetch as E
 import qualified Potoki.Cereal.Transform as D
 
 
-get :: Get a -> Consume ByteString (Either String a)
+get :: Get a -> Consume ByteString (Either Text a)
 get get =
   Consume $ \ (E.Fetch fetchIO) ->
   let
