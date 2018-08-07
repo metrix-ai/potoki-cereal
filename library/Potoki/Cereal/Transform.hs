@@ -31,10 +31,10 @@ result2IResult =
 {-# INLINE runPartialDecoder #-}
 runPartialDecoder :: forall decoded. (ByteString -> C.Result decoded) -> Transform ByteString (Either Text decoded)
 runPartialDecoder inputToResult =
-  Transform $ \ inputFetch -> return $ A.Fetch $ do
-    unconsumedRef <- newIORef mempty
-    finishedRef <- newIORef False
-    fetchParsed inputFetch finishedRef unconsumedRef
+  Transform $ \ inputFetch -> do
+    unconsumedRef <- liftIO $ newIORef mempty
+    finishedRef <- liftIO $ newIORef False
+    return $ A.Fetch $ fetchParsed inputFetch finishedRef unconsumedRef
   where
     fetchParsed :: A.Fetch ByteString -> IORef Bool -> IORef ByteString -> IO (Maybe (Either Text decoded))
     fetchParsed (A.Fetch inputFetchIO) finishedRef unconsumedRef =
