@@ -1,5 +1,5 @@
 name: potoki-cereal
-version: 0.3.0.2
+version: 0.3.1
 synopsis: Streaming serialization
 category: Potoki, Streaming
 homepage: https://github.com/metrix-ai/potoki-cereal
