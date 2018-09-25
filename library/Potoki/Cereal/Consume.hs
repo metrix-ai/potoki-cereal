@@ -34,3 +34,6 @@ getImplicitly = get Serialize.get
 
 encodeToFile :: Serialize a => FilePath -> Consume a (Either IOException ())
 encodeToFile = transform D.encode . writeBytesToFile
+
+encodeToStdout :: Serialize a => Consume a ()
+encodeToStdout = transform D.encode writeBytesToStdout
