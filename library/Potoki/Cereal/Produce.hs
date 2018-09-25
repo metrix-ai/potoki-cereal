@@ -19,6 +19,9 @@ putImplicitly = put . C.put
 fileDecoded :: Serialize a => FilePath -> Produce (Either IOException (Either Text a))
 fileDecoded = transform (right D.decode) . fileBytes
 
+stdinDecoded :: (Serialize a) => Produce (Either IOException (Either Text a))
+stdinDecoded = transform (right' D.decode) stdinBytes
+
 directoryDecoded :: Serialize a => FilePath -> Produce (Either IOException (Either Text a))
 directoryDecoded dirPath =
   transform
